@@ -123,6 +123,7 @@
 
 <script>
 import PublicWorksServices from '@/Services/publickworks.Services'
+import worksStatusServices from '@/Services/worksstatus.Services'
 import { ref, inject } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 // import { useToast } from 'vue-toast-notification'
@@ -137,7 +138,9 @@ export default {
   setup () {
     const swal = inject('$swal')
     const { getPublicWorksById, updatePublicWorks } = PublicWorksServices()
+    const { getWorksStatus } = worksStatusServices()
     const publicWorks = ref([])
+    const worksStatus = ref([])
     const router = useRoute()
     const redirect = useRouter()
     const NameWorksState = ref(false)
@@ -166,7 +169,80 @@ export default {
       publicWorks.value = data
     })
 
+    worksStatus(data => {
+      publicWorks.value = data
+      if (data.length === 0) {
+        swal.fire({
+          title: 'No se encuentra un estatus_OP registrado!',
+          text:
+            'No se encuentra estatus_OP registrado en el departamento seleccionado, registre primero un tipo de estatus para continuar',
+          icon: 'warning'
+        })
+      }
+    })
 
+    const validateNameWorks = () => {
+      if (!publicWorks.value.nombreObra) {
+        validateState()
+        return 'Este campo es requerido'
+      }
+      if (!/^[ a-zA-ZñÑáéíóúÁÉÍÓÚ]+$/i.test(publicWorks.value.nombreObra)) {
+        validateState()
+        return 'El nombre de la obra solo puede contener letras'
+      }
+      validateState()
+      return true
+    }
+
+    const validateLatitude = () => {
+      if (!publicWorks.value.latitud) {
+        validateState()
+        return 'Este campo es requerido'
+      }
+
+      if (!/^[0-9]+$/i.test(publicWorks.value.latitud)) {
+        validateState()
+        return 'Este campo solo puede contener numeros'
+      }
+      validateState()
+      return true
+    }
+
+    const validateLength = () => {
+      if (!publicWorks.value.longitud) {
+        validateState()
+        return 'Este campo es requerido'
+      }
+
+      if (!/^[0-9]+$/i.test(publicWorks.value.longitud)) {
+        validateState()
+        return 'Este campo solo puede contener numeros'
+      }
+      validateState()
+      return true
+    }
+
+    const validateDescription = () => {
+      if (!publicWorks.value.descripcion) {
+        validateState()
+        return 'Este campo es requerido'
+      }
+      if (!/^[ a-zA-ZñÑáéíóúÁÉÍÓÚ]+$/i.test(publicWorks.value.descripcion)) {
+        validateState()
+        return 'La descripcion solo puede contener letras'
+      }
+      validateState()
+      return true
+    }
+
+    const validateWorkStatus = () => {
+      if (!publicWorks.value.estatusObraId) {
+        validateState()
+        return 'Este campo es requerido'
+      }
+      validateState()
+      return true
+    }
 
     const validateState = () => {
       // eslint-disable-next-line no-unneeded-ternary
@@ -191,6 +267,11 @@ export default {
       WorkStatusState,
 
       onUpdatePublicWorks,
+      validateNameWorks,
+      validateLatitude,
+      validateLength,
+      validateDescription,
+      validateWorkStatus,
       validateState
     }
   }

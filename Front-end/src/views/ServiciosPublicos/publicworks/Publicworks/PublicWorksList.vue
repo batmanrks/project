@@ -182,6 +182,7 @@
 
 <script>
 import PublicWorksServices from '@/Services/publickworks.Services'
+import worksStatusServices from '@/Services/worksstatus.Services'
 import { Form, Field, ErrorMessage } from 'vee-validate'
 import { ref, inject } from 'vue'
 import '@vuepic/vue-datepicker/dist/main.css'
@@ -196,6 +197,7 @@ export default {
     const swal = inject('$swal')
     const showModal = ref(false)
     const { getPublicWorks, createPublicWorks, deletePublicWorks } = PublicWorksServices()
+    const { getWorksStatus } = worksStatusServices()
     const publicWorks = ref([])
     const worksStatus = ref([])
     const perPage = ref(5)
@@ -262,6 +264,18 @@ export default {
       // rows.value = filteredItems.length
       currentPage.value = 1
     }
+
+    worksStatus(data => {
+      publicWorksFields.value = data
+      if (data.length === 0) {
+        swal.fire({
+          title: 'No se encuentra un estatus_OP registrado!',
+          text:
+            'No se encuentra estatus_OP registrado en el departamento seleccionado, registre primero un tipo de estatus para continuar',
+          icon: 'warning'
+        })
+      }
+    })
 
     const validateNameWorks = () => {
       if (!publicWorksFields.value.nombreObra) {
@@ -336,8 +350,17 @@ export default {
       DescriptionState.value = true
       return true
     }
-    // pone mis cambios de mis campos vacios de nuevo
 
+    const validateWorkStatus = () => {
+      if (!publicWorksFields.value.estatusObraId) {
+        WorkStatusState.value = false
+        return 'Este campo es requerido'
+      }
+      WorkStatusState.value = false
+      return true
+    }
+
+    // pone mis cambios de mis campos vacios de nuevo
     const refreshTable = () => {
       isloading.value = true
       getPublicWorks(data => {
@@ -422,6 +445,7 @@ export default {
       validateLatitude,
       validateLength,
       validateDescription,
+      validateWorkStatus,
       resetPublicWorksFields
     }
   }
