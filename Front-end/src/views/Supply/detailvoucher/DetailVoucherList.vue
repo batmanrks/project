@@ -364,10 +364,10 @@ export default {
       addDetailVoucher,
       refreshTable,
       RemoveDetailVoucher,
-      validateQuantity
-      validatePrice
-      validateTotal
-
+      validateQuantity,
+      validatePrice,
+      validateTotal,
+      validateProduct,
       resetDetailVoucherFields
     }
   }
